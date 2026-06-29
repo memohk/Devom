@@ -1,0 +1,50 @@
+<div class="card">
+    <h2>Environment Configuration</h2>
+    <p style="color: #8898aa; font-size: 0.9em;">Infrastructure metadata and backend server parameters.</p>
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+    <div class="profile-table">
+        <div class="profile-row">
+            <div class="profile-label">App Environment</div>
+            <div class="profile-value"><span style="color: #2dce89;">DEVELOPMENT / DEBUG MODE</span></div>
+        </div>
+        <div class="profile-row">
+            <div class="profile-label">Server OS</div>
+            <div class="profile-value">Windows NT (User: Usuario)</div>
+        </div>
+        <div class="profile-row">
+            <div class="profile-label">Python Stack</div>
+            <div class="profile-value">Python 3.12.x | Flask 3.0.3</div>
+        </div>
+        <div class="profile-row">
+            <div class="profile-label">Backend Root Path</div>
+            <div class="profile-value"><code>C:\Users\Usuario\AndroidStudioProjects\VulnAppOWASP</code></div>
+        </div>
+        <div class="profile-row">
+            <div class="profile-label">Database Engine</div>
+            <div class="profile-value">SQLite 3.x (WAL Enabled)</div>
+        </div>
+        <div class="profile-row">
+            <div class="profile-label">Master AES Key</div>
+            <div class="profile-value"><code>1234567890123456</code></div>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px; padding: 20px; background: #f1f3f9; border-radius: 8px;">
+        <h4 style="margin-top: 0; color: #32325d;">Infrastructure Connectivity Tools</h4>
+
+        
+        <form action="{{ url_for('admin.webhook_test') }}" method="POST" style="margin-bottom: 20px;">
+            <label style="font-size: 12px; font-weight: bold; color: #525f7f;">Webhook / Endpoint Tester</label><br>
+            <input type="text" name="url" placeholder="http://internal-service.local/check" style="padding: 10px; width: 300px; border-radius: 8px; border: 1px solid #ddd;">
+            <button type="submit" class="btn-action" style="background: #1976D2;">TEST LINK</button>
+        </form>
+
+        
+        <div style="border-top: 1px solid #ddd; padding-top: 20px;">
+            <label style="font-size: 12px; font-weight: bold; color: #525f7f;">Audit Ledger Archive</label><br>
+            <p style="font-size: 11px; color: #8898aa;">Generate a massive log file for off-site archiving.</p>
+            <a href="{{ url_for('admin.generate_huge_report', size=100) }}" class="btn-action" style="background: #5e72e4; text-decoration: none; display: inline-block;">DOWNLOAD LOG ARCHIVE</a>
+        </div>
+    </div>
+</div>

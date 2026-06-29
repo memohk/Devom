@@ -1,0 +1,277 @@
+<!-- 💰 SECCIÓN DE PRÉSTAMOS -->
+<div class="card">
+    <h2>Pending Loan Requests</h2>
+    {% if loans %}
+    <table>
+        <thead>
+            <tr><th>Applicant</th><th>Amount</th><th>Target Account</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            {% for loan in loans %}
+            <tr>
+                <td><strong>{{ loan.username }}</strong></td>
+                <td style="color: #2dce89; font-weight: bold;">$ {{ "{:,}".format(loan.amount|int) }}</td>
+                <td>
+                    {% if loan.account_id == 'profile' %}
+                        <span style="color: #8898aa; font-weight: bold;">Main Balance</span>
+                    {% else %}
+                        <span style="color: #1976D2; font-weight: bold;">{{ loan.account_name or 'Account #' + loan.account_id|string }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="display: flex;">
+                        <form action="{{ url_for('admin.approve_loan', loan_id=loan.id) }}" method="POST" onsubmit="showStamp(event, this)">
+                            <button type="submit" class="btn-action btn-approve">Approve</button>
+                        </form>
+                        <form action="{{ url_for('admin.reject_loan', loan_id=loan.id) }}" method="POST">
+                            <button type="submit" class="btn-action btn-reject">Reject</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty-msg">Great! There are no pending loan requests.</p>
+    {% endif %}
+</div>
+
+<!-- 📜 LISTA DE DEUDAS ACTIVAS -->
+<div class="card">
+    <h2>Active Loan Ledger (Outstanding Debt)</h2>
+    {% if loans_active %}
+    <table>
+        <thead>
+            <tr><th>Applicant</th><th>Original Amount</th><th>Remaining Debt</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+            {% for loan in loans_active %}
+            <tr>
+                <td><strong>{{ loan.username }}</strong></td>
+                <td>$ {{ "{:,}".format(loan.amount|int) }}</td>
+                <td style="color: #f5365c; font-weight: bold;">$ {{ "{:,}".format((loan.remaining_amount if loan.remaining_amount is not none else loan.amount)|int) }}</td>
+                <td>
+                    <a href="{{ url_for('admin.loan_details', loan_id=loan.id) }}" style="font-size: 11px; font-weight: bold; color: #1976D2; text-decoration: none;">DETAILS</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty-msg">No active debits found in the system.</p>
+    {% endif %}
+</div>
+
+<!-- 📜 HISTORIAL DE PRÉSTAMOS (PROCESADOS) -->
+<div class="card">
+    <h2>Loan Processing Ledger (History)</h2>
+    <table>
+        <thead>
+            <tr><th>Applicant</th><th>Amount</th><th>Status</th><th>Resolution</th></tr>
+        </thead>
+        <tbody>
+            {% for loan in loans_history %}
+            <tr>
+                <td><strong>{{ loan.username }}</strong></td>
+                <td>$ {{ "{:,}".format(loan.amount|int) }}</td>
+                <td>
+                    {% if loan.status == 'PAID' %}
+                        <span class="badge" style="background: #e7fcf3; color: #2dce89; font-weight: bold;">✅ PAID</span>
+                    {% elif loan.status == 'REJECTED' %}
+                        <span class="badge" style="background: #fee7e6; color: #f5365c;">❌ REJECTED</span>
+                    {% else %}
+                        <span class="badge" style="background: #f4f5f7; color: #8898aa;">{{ loan.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        {% if loan.status != 'REJECTED' %}
+                            <a href="{{ url_for('admin.loan_details', loan_id=loan.id) }}" style="font-size: 11px; font-weight: bold; color: #1976D2; text-decoration: none;">VIEW PAYMENTS &rarr;</a>
+                        {% else %}
+                            <span style="font-size: 11px; color: #adb5bd; font-style: italic;">No payments</span>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% if not loans_history %}
+    <p class="empty-msg">No processed loans found in history.</p>
+    {% endif %}
+</div>
+
+<!-- 🤖 SECCIÓN DE SOPORTE -->
+<div class="card">
+    <h2>Recent Support Tickets</h2>
+    {% if tickets %}
+    <table>
+        <thead>
+            <tr><th width="180">User</th><th>Subject / Initial Message</th><th>Status</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+            {% for ticket in tickets %}
+            <tr>
+                <td><strong>{{ ticket.username }}</strong></td>
+                <td style="background: white; border-radius: 4px; padding: 12px; border: 1px solid #f1f3f9;">
+                    {{ ticket.subject | safe }}
+                </td>
+                <td>
+                    <span class="badge" style="background: {% if ticket.status == 'OPEN' %}#fff3e0; color: #e65100;{% else %}#e8f5e9; color: #2e7d32;{% endif %}">
+                        {{ ticket.status }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{{ url_for('admin.admin_dashboard', view='ticket_detail', id=ticket.id) }}" style="color: #1976D2; text-decoration: none; font-weight: bold; font-size: 11px;">OPEN THREAD &rarr;</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty-msg">No tickets to display.</p>
+    {% endif %}
+</div>
+
+<!-- 👤 SECCIÓN DE USUARIOS -->
+<div class="card" id="user-ledger">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h2 style="margin: 0;">Registered KYC Entities</h2>
+
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <!-- BOTÓN DE REGISTRO MANUAL -->
+            <button onclick="toggleRegForm()" style="background: #2dce89; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 11px; font-weight: bold; box-shadow: 0 4px 10px rgba(45, 206, 137, 0.2);">+ NEW CLIENT</button>
+
+            
+            <form action="{{ url_for('admin.admin_dashboard') }}#user-ledger" method="GET" style="display: flex; gap: 10px;">
+                <input type="hidden" name="view" value="console">
+                <input type="text" name="search" placeholder="Search user or email..." value="{{ search_val or '' }}" style="padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; outline: none;">
+                <button type="submit" class="btn-action" style="background: #1976D2;">SEARCH</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FORMULARIO OCULTO DE REGISTRO MANUAL -->
+    <div id="manualRegForm" style="display: none; background: white; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 30px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+        <h3 style="margin-top: 0; font-size: 14px; color: #1976D2; text-transform: uppercase;">Direct Branch Registration</h3>
+        <form action="/admin/create_user" method="POST" enctype="multipart/form-data">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                <input type="text" name="name" placeholder="First Name" required style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa;">
+                <input type="text" name="lastname" placeholder="Last Names" required style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa;">
+                <input type="text" name="dni" placeholder="DNI / Passport" required maxlength="13" pattern="[a-zA-Z0-9]+" title="Only alphanumeric characters allowed" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa;">
+                <input type="email" name="email" placeholder="client@email.com" required style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa;">
+                <input type="text" name="phone" placeholder="Phone Number" required style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa;">
+                <div style="display: flex; flex-direction: column;">
+                    <label style="font-size: 10px; color: #8898aa; font-weight: bold; margin-bottom: 5px;">KYC SELFIE (OPTIONAL)</label>
+                    <input type="file" name="selfie" style="font-size: 11px;">
+                </div>
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button type="submit" style="background: #1976D2; color: white; border: none; padding: 10px 30px; border-radius: 5px; cursor: pointer; font-weight: bold;">GENERATE ACCOUNT</button>
+                <button type="button" onclick="toggleRegForm()" style="background: #e2e8f0; color: #4a5568; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">CANCEL</button>
+            </div>
+        </form>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+        <a href="{{ url_for('admin.export_csv') }}" class="btn-action btn-approve" style="text-decoration: none; padding: 10px 25px; border-radius: 20px;">EXPORT TO CSV</a>
+    </div>
+    <div style="overflow-y: auto; max-height: 500px; border: 1px solid #edf2f7; border-radius: 8px;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="position: sticky; top: 0; z-index: 10; background: #F6F9FC; box-shadow: 0 2px 2px -1px rgba(0,0,0,0.05);">
+                <tr><th>ID</th><th>Identity</th><th>Global Balance</th><th>Compliance Status</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr style="border-bottom: 1px solid #edf2f7;">
+                    <td style="padding: 15px 12px;">#{{ user.id }}</td>
+                    <td style="padding: 15px 12px;">
+                        <div style="font-weight: bold; color: #32325d;">{{ user.username }}</div>
+                        <div style="font-size: 11px; color: #8898aa;">{{ user.email }}</div>
+                    </td>
+                    <td style="padding: 15px 12px;"><strong style="color: #2dce89;">$ {{ "{:,}".format(user.balance|int) }}</strong></td>
+                    <td style="padding: 15px 12px;">
+                        {% if user.status == 'ACTIVE' %}
+                            {% if not user.kyc_selfie %}
+                                <span class="badge" style="background: #fff5f7; color: #f5365c; padding: 5px 12px; border-radius: 15px; font-size: 10px; font-weight: bold; border: 1px solid #f5365c;">⚠️ ACTIVE (NO KYC)</span>
+                            {% else %}
+                                <span class="badge" style="background: #e7fcf3; color: #2dce89; padding: 5px 12px; border-radius: 15px; font-size: 10px; font-weight: bold;">✅ ACTIVE</span>
+                            {% endif %}
+                        {% elif user.status == 'BLOCKED' %}
+                            <span class="badge" style="background: #fee7e6; color: #f5365c; padding: 5px 12px; border-radius: 15px; font-size: 10px; font-weight: bold;">🚫 BLOCKED</span>
+                        {% else %}
+                            <span class="badge" style="background: #fff5e6; color: #fb6340; padding: 5px 12px; border-radius: 15px; font-size: 10px; font-weight: bold;">⏳ PENDING KYC</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 15px 12px;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <a href="{{ url_for('admin.user_details', user_id=user.id) }}" style="color: #1976D2; text-decoration: none; font-weight: bold; font-size: 11px; text-transform: uppercase;">Details</a>
+
+                            <!-- RESET PASSWORD BUTTON -->
+                            <form action="{{ url_for('admin.reset_user_password', user_id=user.id) }}" method="POST" style="margin:0;" onsubmit="return confirm('Force password reset for this user?')">
+                                <button type="submit" style="background: #fb6340; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 9px; font-weight: bold;">RESET PASS</button>
+                            </form>
+
+                            {% if user.status == 'BLOCKED' %}
+                                <form action="{{ url_for('admin.update_user_status', user_id=user.id, new_status='ACTIVE') }}" method="POST" style="margin:0;">
+                                    <button type="submit" style="background: #2dce89; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 9px; font-weight: bold;">UNBLOCK</button>
+                                </form>
+                            {% else %}
+                                <form action="{{ url_for('admin.update_user_status', user_id=user.id, new_status='BLOCKED') }}" method="POST" style="margin:0;">
+                                    <button type="submit" style="background: #f5365c; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 9px; font-weight: bold;">BLOCK</button>
+                                </form>
+                            {% endif %}
+
+                            <!-- DELETE USER BUTTON -->
+                            {% if user.id != 133700 and user.id != 100500 %}
+                            <form action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="POST" style="margin:0;" onsubmit="return confirm('⚠️ DANGER: Permanently delete this user and all their data?')">
+                                <button type="submit" style="background: #32325d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 9px; font-weight: bold;">DELETE</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function toggleRegForm() {
+        const form = document.getElementById('manualRegForm');
+        if (form) {
+            form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+        }
+    }
+
+    // 🟢 FUNCIÓN PARA EL SELLO DE APROBACIÓN
+    function showStamp(event, form) {
+        event.preventDefault(); // Detener envío inmediato
+
+        // Crear el elemento del sello
+        const stamp = document.createElement('div');
+        stamp.innerHTML = "APPROVED";
+        stamp.style.cssText = `
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg) scale(5);
+            border: 15px solid #2dce89; color: #2dce89; font-family: 'Segoe UI', bold;
+            font-size: 80px; padding: 20px 50px; border-radius: 20px; opacity: 0;
+            z-index: 10000; pointer-events: none; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(255,255,255,0.9); box-shadow: 0 0 50px rgba(45,206,137,0.3);
+        `;
+        document.body.appendChild(stamp);
+
+        // Animación de impacto
+        setTimeout(() => {
+            stamp.style.opacity = "0.8";
+            stamp.style.transform = "translate(-50%, -50%) rotate(-15deg) scale(1)";
+            // Sonido opcional o vibración aquí
+        }, 50);
+
+        // Enviar el formulario tras la animación
+        setTimeout(() => {
+            form.submit();
+        }, 1200);
+    }
+</script>

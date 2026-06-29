@@ -1,0 +1,27 @@
+<div class="card">
+    <h2>Device Fleet Metadata</h2>
+    <p style="color: #8898aa; font-size: 0.9em;">Analysis of connected hardware, operating systems, and client fingerprints.</p>
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+    <table>
+        <thead>
+            <tr><th>Associated User</th><th>Hardware / User-Agent</th><th>OS Version</th><th>Remote IP</th><th>Trust Score</th></tr>
+        </thead>
+        <tbody>
+            {% for device in devices %}
+            <tr>
+                <td><strong>{{ device.user }}</strong></td>
+                <td><code style="font-size: 11px;">{{ device.model }}</code></td>
+                <td><span class="badge badge-pending" style="background: #e1f5fe; color: #0277bd;">{{ device.version }}</span></td>
+                <td>{{ device.ip }}</td>
+                <td>
+                    <span style="color: {% if device.status == 'Trusted' %}#2dce89{% else %}#fb6340{% endif %}; font-weight: bold;">
+                        ● {{ device.status }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>

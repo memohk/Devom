@@ -1,0 +1,413 @@
+<html>
+
+<head>
+    <title>DVOM MASTER AUDIT INVENTORY - V.3.1.2</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f2f5;
+            color: #1a1a1b;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            border-bottom: 3px solid #0046be;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h2 {
+            background: #1e1e2d;
+            padding: 15px;
+            border-radius: 8px;
+            color: #fff;
+            margin-top: 50px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            table-layout: fixed;
+        }
+
+        th {
+            background: #f4f7fa;
+            color: #333;
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid #cbd5e0;
+            font-size: 0.85em;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 0.8em;
+            word-wrap: break-word;
+            vertical-align: top;
+        }
+
+        .id-cell {
+            font-weight: 800;
+            color: #f5365c;
+            font-family: monospace;
+            font-size: 1.2em;
+            background: #fff5f7;
+            text-align: center;
+        }
+
+        .path {
+            font-family: 'Consolas', monospace;
+            color: #e91e63;
+            font-weight: bold;
+            background: #fdf2f2;
+            padding: 2px 5px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 2px;
+            border: 1px solid #ffccd5;
+        }
+
+        .method-tag {
+            font-size: 9px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            color: white;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        .bg-post {
+            background: #2dce89;
+        }
+
+        .bg-get {
+            background: #11cdef;
+        }
+
+        .file-path {
+            color: #5e72e4;
+            font-family: monospace;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🔐 DVOM STRATEGIC VULNERABILITY INVENTORY</h1>
+                <p>Full Verified Scope | Mobile • API • Web Admin | Version 3.1.2</p>
+            </div>
+            <div style="text-align: right;"><span
+                    style="background: #fb6340; color: #fff; padding: 10px 20px; border-radius: 25px; font-weight: bold; font-size: 0.9em;">OWASP-Mapped
+                    Vulnerability Inventory</span></div>
+        </div>
+
+        <!-- SECTION: MOBILE -->
+        <h2>📱 [MOBILE] OWASP Mobile Top 10: 2024</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th width="70">ID</th>
+                    <th width="220">Category</th>
+                    <th width="400">Affected Assets / Modules</th>
+                    <th>Technical Vulnerability Detail</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="id-cell">M1</td>
+                    <td>Improper Credential Usage</td>
+                    <td><code>LoginActivity</code>, <code>TwoFactorAuth</code></td>
+                    <td>Use of hardcoded master bypass code "1293" and insecure credential processing.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">M2</td>
+                    <td>Inadequate Supply Chain Security</td>
+                    <td><code>AI Bot Engine</code>, <code>Retrofit Config</code></td>
+                    <td>Integration of vulnerable third-party simulated libraries and insecure backend dependencies.
+                    </td>
+                </tr>
+                <tr>
+                    <td class="id-cell">M3</td>
+                    <td>Insecure Authentication / Authorization</td>
+                    <td><code>BiometricPrompt</code>, <code>LoanActivity</code>, <code>CardsActivity</code></td>
+                    <td>Simulated biometric bypass and lack of server-side ownership validation for resource IDs.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">M4</td>
+                    <td>Insufficient Input / Output Validation</td>
+                    <td><code>QRScannerActivity</code>, <code>FileUploadActivity</code></td>
+                    <td>Command injection via filenames and automated field injection through unvalidated QR data.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">M5</td>
+                    <td>Insecure Communication</td>
+                    <td><code>OkHttpClient</code>, <code>NetworkSecurityConfig</code></td>
+                    <td>Bypassable SSL Pinning and lack of certificate transparency enforcement.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">M6</td>
+                    <td>Inadequate Privacy Controls</td>
+                    <td><code>DeviceMetadataProvider</code>, <code>Logcat Output</code>, <code>Screenshots</code></td>
+                    <td>Excessive hardware ID exfiltration and sensitive data printed to system-wide debug buffers.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">M7</td>
+                    <td>Insufficient Binary Protections</td>
+                    <td><code>build.gradle</code>, <code>ProGuard</code></td>
+                    <td>Complete absence of code obfuscation, allowing full logic recovery via JADX-GUI.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">M8</td>
+                    <td>Security Misconfiguration</td>
+                    <td><code>DebugActivity</code>, <code>VulnerableReceiver</code></td>
+                    <td>Unprotected exported activities and receivers allowing remote app manipulation.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">M9</td>
+                    <td>Insecure Data Storage</td>
+                    <td><span class="file-path">UserDB.db</span>, <span class="file-path">UserSession.xml</span></td>
+                    <td>Persistence of PII and active session tokens in unencrypted local file systems.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">M10</td>
+                    <td>Insufficient Cryptography</td>
+                    <td><code>CryptoManager.kt</code></td>
+                    <td>Usage of static, hardcoded AES-128-CBC keys and lack of hardware-backed key storage.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- SECTION: API -->
+        <h2>⚙️ [API] OWASP API Security Top 10: 2023</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th width="70">ID</th>
+                    <th width="200">Category</th>
+                    <th width="450">Vulnerable Endpoints</th>
+                    <th>Technical Vulnerability Detail</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="id-cell">API1</td>
+                    <td>Broken Object Level Authorization</td>
+                    <td>
+                        <span class="method-tag bg-get">GET</span><span class="path">/get_accounts</span>
+                        <span class="method-tag bg-get">GET</span><span class="path">/get_cards</span>
+                        <span class="method-tag bg-post">POST</span><span class="path">/pay_loan</span>
+                    </td>
+                    <td>BOLA: Direct numeric ID manipulation in resource access.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">API2</td>
+                    <td>Broken Authentication</td>
+                    <td>
+                        <span class="method-tag bg-post">POST</span><span class="path">/verify_login_2fa</span>
+                        <span class="method-tag bg-post">POST</span><span class="path">/reset_password</span>
+                    </td>
+                    <td>Weak signing secrets and bypassable OTP logic.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">API3</td>
+                    <td>Broken Object Property Level Authorization</td>
+                    <td>
+                        <span class="method-tag bg-get">GET</span><span class="path">/profile</span>
+                        <span class="method-tag bg-get">GET</span><span class="path">/transaction_details</span>
+                    </td>
+                    <td>API responses leak non-essential PII fields (DNI, Phone, Email).</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">API4</td>
+                    <td>Unrestricted Resource Consumption</td>
+                    <td>
+                        <span class="method-tag bg-get">GET</span><span class="path">/admin/generate_huge_report</span>
+                    </td>
+                    <td>CPU/Memory exhaustion via large dataset requests (DoS).</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">API5</td>
+                    <td>Broken Function Level Authorization</td>
+                    <td>
+                        <span class="method-tag bg-post">POST</span><span class="path">/admin/create_user</span>
+                        <span class="method-tag bg-post">POST</span><span class="path">/terminate_account</span>
+                    </td>
+                    <td>Authorization bypass: user-level sessions invoking admin routes.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">API6</td>
+                    <td>Unrestricted Access to Sensitive Business Flows</td>
+                    <td>
+                        <span class="method-tag bg-post">POST</span><span class="path">/pay_loan</span>
+                        <span class="method-tag bg-post">POST</span><span class="path">/transfer</span>
+                    </td>
+                    <td>Mass Assignment on loan statuses and Race Conditions in transfers.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">API7</td>
+                    <td>Server Side Request Forgery</td>
+                    <td>
+                        <span class="method-tag bg-post">POST</span><span class="path">/admin/webhook_test</span>
+                    </td>
+                    <td>SSRF: Internal port scanning and local file exfiltration.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">API8</td>
+                    <td>Security Misconfiguration</td>
+                    <td>
+                        <span class="method-tag bg-post">POST</span><span class="path">/upload_profile_pic</span>
+                    </td>
+                    <td>Permissive CORS (*) and unrestricted file uploads.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">API9</td>
+                    <td>Improper Inventory Management</td>
+                    <td>
+                        <span class="method-tag bg-get">GET</span><span class="path">/docs</span>
+                    </td>
+                    <td>Exposure of infrastructure docs and legacy endpoints.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">API10</td>
+                    <td>Unsafe Consumption of APIs</td>
+                    <td>
+                        <span class="method-tag bg-post">POST</span><span class="path">/ai_chat</span>
+                    </td>
+                    <td>Prompt Injection risks disclosing internal backend keys.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- SECTION: WEB -->
+        <h2>🖥️ [WEB] OWASP Web Top 10: 2025</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th width="70">ID</th>
+                    <th width="200">Category</th>
+                    <th width="400">Vulnerable Views / Modules</th>
+                    <th>Technical Vulnerability Detail</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="id-cell">A01</td>
+                    <td>Broken Access Control</td>
+                    <td>
+                        <span class="method-tag bg-get">GET</span><span class="path">/admin/backups</span>
+                        <span class="method-tag bg-get">GET</span><span class="path">/admin/rbac</span>
+                    </td>
+                    <td>Vertical privilege escalation via direct URL manipulation.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">A02</td>
+                    <td>Security Misconfiguration</td>
+                    <td>
+                        <span class="method-tag bg-get">GET</span><span class="path">/admin/settings</span>
+                        <span class="method-tag bg-get">GET</span><span class="path">/system_health</span>
+                        <code>Flask Debug Mode</code>
+                    </td>
+                    <td>Stack trace disclosure revealing absolute file paths, environment metadata, and sensitive source
+                        code logic.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">A03</td>
+                    <td>Software Supply Chain Failures</td>
+                    <td>
+                        <span class="method-tag bg-post">POST</span><span class="path">/ai_chat</span>
+                        <code>AI Bot Engine (v1)</code>
+                    </td>
+                    <td>Usage of vulnerable simulated libraries and insecure AI integrations.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">A04</td>
+                    <td>Cryptographic Failures</td>
+                    <td>
+                        <span class="method-tag bg-post">POST</span><span class="path">/admin/login</span>
+                        <code>app.secret_key</code>
+                    </td>
+                    <td>Passwords stored in cleartext and hardcoded session signing keys.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">A05</td>
+                    <td>Injection</td>
+                    <td>
+                        <span class="method-tag bg-get">GET</span><span class="path">/admin/console?search=...</span>
+                        <span class="method-tag bg-post">POST</span><span class="path">/admin/send_global_msg</span>
+                    </td>
+                    <td>SQL Injection in user search and Stored XSS in global announcements.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">A06</td>
+                    <td>Insecure Design</td>
+                    <td>
+                        <span class="method-tag bg-post">POST</span><span class="path">/admin/update_user_status</span>
+                    </td>
+                    <td>Logic flaws allowing manual "Active" status without documents.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">A07</td>
+                    <td>Authentication Failures</td>
+                    <td>
+                        <span class="method-tag bg-post">POST</span><span class="path">/admin/login</span>
+                    </td>
+                    <td>Weak administrative credentials (admin123) and lack of brute force protection.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">A08</td>
+                    <td>Software or Data Integrity Failures</td>
+                    <td>
+                        <span class="method-tag bg-post">POST</span><span class="path">/admin/ocr_process</span>
+                    </td>
+                    <td>Insecure Deserialization: Engine requires a specific <code>__metadata_obj__</code> key with a
+                        custom object wrapper to execute commands.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">A09</td>
+                    <td>Security Logging and Alerting Failures</td>
+                    <td>
+                        <span class="method-tag bg-get">GET</span><span class="path">/admin/fraud</span>
+                    </td>
+                    <td>Logging mistyped passwords in cleartext within the admin console.</td>
+                </tr>
+                <tr>
+                    <td class="id-cell">A10</td>
+                    <td>Mishandling of Exceptional Conditions</td>
+                    <td>
+                        <span class="method-tag bg-post">POST</span><span class="path">/admin/login</span>
+                    </td>
+                    <td>Fail-Open logic: granting admin access when the login process crashes.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div
+            style="margin-top: 50px; border-top: 1px solid #ccc; padding-top: 20px; font-size: 0.8em; color: #7f8c8d; text-align: center;">
+            DVOM Strategic Audit Reference | V.3.1.2 | © 2026 DVOM Security Lab | Compliance Verified
+        </div>
+    </div>
+</body>
+
+</html>

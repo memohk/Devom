@@ -1,0 +1,116 @@
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+            <h2 style="margin: 0;">Infrastructure Intelligence & Metrics</h2>
+            <p style="color: #8898aa; font-size: 0.85em; margin: 5px 0 0 0;">Real-time data visualization of banking operations and security events.</p>
+        </div>
+        <button onclick="showToast('Data Synced', 'Metrics updated with latest ledger records.')" style="background: #e3f2fd; color: #1976D2; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: bold;">REFRESH STATS</button>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;">
+
+        <!-- 📊 GRÁFICA 1: PRÉSTAMOS -->
+        <div style="padding: 25px; background: white; border-radius: 16px; border: 1px solid #edf2f7; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+            <h4 style="margin: 0 0 20px 0; color: #32325d; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Credit Risk Distribution</h4>
+            <div style="height: 250px;">
+                <canvas id="loanChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 📊 GRÁFICA 2: FRAUDE -->
+        <div style="padding: 25px; background: white; border-radius: 16px; border: 1px solid #edf2f7; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+            <h4 style="margin: 0 0 20px 0; color: #32325d; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Security Incident Metrics</h4>
+            <div style="height: 250px;">
+                <canvas id="fraudChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Technical Summary -->
+    <div style="margin-top: 30px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+        <div style="background: #f8f9fe; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
+            <div style="font-size: 10px; color: #8898aa; font-weight: bold; margin-bottom: 5px;">TOTAL LOANS</div>
+            <div style="font-size: 20px; font-weight: bold; color: #32325d;">{{ "{:,}".format(loan_stats.approved + loan_stats.rejected + loan_stats.pending) }}</div>
+        </div>
+        <div style="background: #f8f9fe; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
+            <div style="font-size: 10px; color: #8898aa; font-weight: bold; margin-bottom: 5px;">FRAUD ATTEMPTS</div>
+            <div style="font-size: 20px; font-weight: bold; color: #f5365c;">{{ "{:,}".format(fraud_stats.total_fails) }}</div>
+        </div>
+        <div style="background: #f8f9fe; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
+            <div style="font-size: 10px; color: #8898aa; font-weight: bold; margin-bottom: 5px;">UNIQUE ATTACKER IPs</div>
+            <div style="font-size: 20px; font-weight: bold; color: #1976D2;">{{ "{:,}".format(fraud_stats.unique_ips) }}</div>
+        </div>
+        <div style="background: #f8f9fe; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
+            <div style="font-size: 10px; color: #8898aa; font-weight: bold; margin-bottom: 5px;">ACTIVE SYSTEM ROLES</div>
+            <div style="font-size: 20px; font-weight: bold; color: #2dce89;">3</div>
+        </div>
+    </div>
+</div>
+
+<!-- 📦 CONTENEDOR DE NOTIFICACIONES (TOASTS) -->
+<div id="toast-container"></div>
+
+<script>
+    // Inicializar Gráfica de Préstamos
+    const ctxLoan = document.getElementById('loanChart').getContext('2d');
+    new Chart(ctxLoan, {
+        type: 'doughnut',
+        data: {
+            labels: ['Approved', 'Rejected', 'Pending'],
+            datasets: [{
+                data: [{{ loan_stats.approved }}, {{ loan_stats.rejected }}, {{ loan_stats.pending }}],
+                backgroundColor: ['#2dce89', '#f5365c', '#fb6340'],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    // Inicializar Gráfica de Seguridad
+    const ctxFraud = document.getElementById('fraudChart').getContext('2d');
+    new Chart(ctxFraud, {
+        type: 'bar',
+        data: {
+            labels: ['Brute Force', 'SQL Injection', 'SSRF / Probing', 'Remote Commands'],
+            datasets: [{
+                label: 'Intrusion Attempts Detected',
+                data: [{{ attack_stats.brute }}, {{ attack_stats.sqli }}, {{ attack_stats.ssrf }}, {{ attack_stats.rce }}],
+                backgroundColor: ['#5e72e4', '#f5365c', '#fb6340', '#11cdef'],
+                borderRadius: 8
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, grid: { color: '#f0f0f0' } } },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Sistema de Toasts
+    function showToast(title, msg) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `
+            <div style="font-size: 20px;">🔔</div>
+            <div>
+                <div style="font-weight: bold; font-size: 13px;">${title}</div>
+                <div style="font-size: 11px; opacity: 0.8;">${msg}</div>
+            </div>
+        `;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            toast.style.transition = '0.5s';
+            setTimeout(() => toast.remove(), 500);
+        }, 4000);
+    }
+</script>

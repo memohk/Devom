@@ -1,0 +1,34 @@
+<div class="card">
+    <h2>Fraud & Intrusion Detection</h2>
+    <p style="color: #8898aa; font-size: 0.9em;">Monitoring suspicious login attempts and brute-force patterns.</p>
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+    <table>
+        <thead>
+            <tr><th>Timestamp</th><th>Username Target</th><th>Password Tried</th><th>Source IP</th><th>Risk Level</th></tr>
+        </thead>
+        <tbody>
+            {% for fail in login_fails %}
+            <tr>
+                <td style="font-size: 12px;">{{ fail.timestamp }}</td>
+                <td><strong>{{ fail.username }}</strong></td>
+                <td><code style="color: #e53935;">{{ fail.password_tried }}</code></td>
+                <td>{{ fail.ip_address }}</td>
+                <td><span class="badge" style="background: #fff5f7; color: #f5365c;">HIGH</span></td>
+                <td>
+                    {% if fail.user_id %}
+                    <form action="/admin/update_user_status" method="POST">
+                        <input type="hidden" name="user_id" value="{{ fail.user_id }}">
+                        <input type="hidden" name="new_status" value="ACTIVE">
+                        <button type="submit" style="background: #2dce89; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 10px;">QUICK ACTIVATE</button>
+                    </form>
+                    {% else %}
+                    <span style="color: #8898aa; font-size: 10px;">User not found</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>

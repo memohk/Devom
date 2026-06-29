@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DVOM Admin Portal</title>
+    <!-- Librería de Gráficas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fe;
+            margin: 0;
+            color: #212121;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 🟢 MEJORA 3: TABLAS INTERACTIVAS */
+        table tr {
+            transition: all 0.2s ease;
+        }
+        table tbody tr:hover {
+            background-color: #f1f7ff !important;
+            transform: scale(1.002);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+
+        /* Colores Pastel para Estados */
+        .status-active { background: #e7fcf3; color: #2dce89; }
+        .status-blocked { background: #fee7e6; color: #f5365c; }
+        .status-pending { background: #fff5e6; color: #fb6340; }
+
+        /* 🔵 MEJORA 4: SISTEMA DE TOASTS */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        .toast {
+            background: #32325d;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+        /* ... resto de estilos existentes ... */
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            /* 🔵 COLORES POR ROL RESTAURADOS */
+            background: {% if session['admin_role'] == 'ADMIN' %}#1976D2{% elif session['admin_role'] == 'CUSTOMER_SERVICE' %}#0D47A1{% else %}#344767{% endif %};
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 1001;
+            transition: background 0.5s ease;
+        }
+
+        .sidebar-header {
+            padding: 30px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .sidebar-header img {
+            height: 70px;
+            width: auto;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 16px;
+            margin: 0;
+            padding: 0;
+            background: none;
+            border: none;
+            letter-spacing: 2px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .sidebar-header .admin-label {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 8px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+            width: 100%;
+            display: block;
+        }
+
+        .sidebar-menu {
+            flex-grow: 1;
+            padding-top: 20px;
+            overflow-y: auto;
+        }
+
+        /* Custom Scrollbar for Sidebar Menu */
+        .sidebar-menu::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar-menu::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .sidebar-menu::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .menu-item {
+            padding: 15px 30px;
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .menu-item.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #ffffff;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-logout {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: #E53935;
+            color: white;
+            text-decoration: none;
+            padding: 12px 0;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #C62828;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex-grow: 1;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            padding: 0 40px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar h1 {
+            color: #1976D2;
+            font-size: 18px;
+            margin: 0;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .container {
+            padding: 40px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #edf2f7;
+            margin-bottom: 30px;
+            padding: 30px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.02);
+        }
+
+        h2 {
+            color: #32325d;
+            font-size: 17px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+        }
+
+        h2::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: #1976D2;
+            display: inline-block;
+            margin-right: 12px;
+            border-radius: 2px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #F6F9FC;
+            color: #8898aa;
+            font-size: 11px;
+            text-transform: uppercase;
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f8f9fe;
+            font-size: 14px;
+            color: #525f7f;
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            font-size: 11px;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .btn-approve {
+            background: #2dce89;
+            margin-right: 5px;
+        }
+
+        .btn-approve:hover {
+            background: #26af72;
+            transform: translateY(-1px);
+        }
+
+        .btn-reject {
+            background: #f5365c;
+        }
+
+        .btn-reject:hover {
+            background: #ec0c38;
+            transform: translateY(-1px);
+        }
+
+        /* Profile Details */
+        .profile-table {
+            width: 100%;
+        }
+
+        .profile-row {
+            display: flex;
+            padding: 18px 0;
+            border-bottom: 1px solid #f6f9fc;
+        }
+
+        .profile-label {
+            width: 200px;
+            color: #8898aa;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .profile-value {
+            font-weight: 600;
+            color: #32325d;
+            font-size: 15px;
+        }
+
+        .empty-msg {
+            text-align: center;
+            color: #adb5bd;
+            padding: 60px;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        code {
+            background: #f4f5f7;
+            padding: 3px 6px;
+            border-radius: 4px;
+            color: #1976D2;
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="/templates/images/logo.png" alt="DVOM Logo">
+            <h2>DVOM BANK</h2>
+            <div class="admin-label">ADMINISTRATION PANEL</div>
+        </div>
+
+        <div class="sidebar-menu">
+            {% set role = session['admin_role'] %}
+
+            <!-- SECCIÓN NEGOCIO: ADMIN Y CUSTOMER SERVICE -->
+            {% if role == 'ADMIN' or role == 'CUSTOMER_SERVICE' %}
+            <a href="{{ url_for('admin.admin_dashboard', view='console') }}" class="menu-item {% if view == 'console' %}active{% endif %}">
+                🖥️ &nbsp; ADMIN CONSOLE
+            </a>
+            <a href="{{ url_for('admin.admin_dashboard', view='ocr') }}" class="menu-item {% if view == 'ocr' %}active{% endif %}">
+                🔍 &nbsp; KYC OCR SCANNER
+            </a>
+            {% endif %}
+
+            <!-- SECCIÓN TÉCNICA: ADMIN Y SUPPORT -->
+            {% if role == 'ADMIN' or role == 'SUPPORT' %}
+            <a href="{{ url_for('admin.admin_dashboard', view='fraud') }}" class="menu-item {% if view == 'fraud' %}active{% endif %}">
+                🚨 &nbsp; FRAUD DETECTION
+            </a>
+            <a href="{{ url_for('admin.admin_dashboard', view='devices') }}" class="menu-item {% if view == 'devices' %}active{% endif %}">
+                📱 &nbsp; DEVICE FLEET
+            </a>
+            <a href="{{ url_for('admin.admin_dashboard', view='live_logs') }}" class="menu-item {% if view == 'live_logs' %}active{% endif %}">
+                📡 &nbsp; LIVE MONITORING
+            </a>
+            <a href="{{ url_for('admin.admin_dashboard', view='logs') }}" class="menu-item {% if view == 'logs' %}active{% endif %}">
+                📝 &nbsp; AUDIT LOGS
+            </a>
+            {% endif %}
+
+            <!-- MENÚS GLOBALES -->
+            <a href="{{ url_for('admin.admin_dashboard', view='messaging') }}" class="menu-item {% if view == 'messaging' %}active{% endif %}">
+                📢 &nbsp; GLOBAL MESSAGING
+            </a>
+            <a href="{{ url_for('admin.admin_dashboard', view='metrics') }}" class="menu-item {% if view == 'metrics' %}active{% endif %}">
+                📊 &nbsp; SECURITY METRICS
+            </a>
+
+            <!-- SOLO ROOT ADMIN -->
+            {% if role == 'ADMIN' %}
+            <a href="{{ url_for('admin.admin_dashboard', view='backups') }}" class="menu-item {% if view == 'backups' %}active{% endif %}">
+                💾 &nbsp; BACKUPS & DB
+            </a>
+            <a href="{{ url_for('admin.admin_dashboard', view='settings') }}" class="menu-item {% if view == 'settings' %}active{% endif %}">
+                ⚙️ &nbsp; SYSTEM SETTINGS
+            </a>
+            <a href="{{ url_for('admin.admin_dashboard', view='rbac') }}" class="menu-item {% if view == 'rbac' %}active{% endif %}">
+                👥 &nbsp; STAFF ROLES
+            </a>
+            {% endif %}
+
+            <a href="{{ url_for('admin.admin_dashboard', view='profile') }}" class="menu-item {% if view == 'profile' %}active{% endif %}">
+                👤 &nbsp; MY PROFILE
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('admin.admin_logout') }}" class="btn-logout">SIGN OUT</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="navbar">
+            <h1>{% if view == 'console' %}Dashboard Console{% elif view == 'fraud' %}Fraud Detection Center{% elif view == 'ocr' %}Identity Validation Queue{% elif view == 'messaging' %}Broadcast Communications{% elif view == 'metrics' %}Infrastructure Telemetry{% elif view == 'settings' %}System Control Panel{% elif view == 'logs' %}Audit Ledger History{% elif view == 'live_logs' %}Live Traffic Stream{% elif view == 'rbac' %}Infrastructure Staff Control{% elif view == 'profile' %}Account Profile{% else %}Administrative View{% endif %}</h1>
+
+            <button onclick="location.reload()" style="background: #1976D2; color: white; border: none; padding: 8px 20px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 4px 10px rgba(25, 118, 210, 0.2);" onmouseover="this.style.background='#1565C0'" onmouseout="this.style.background='#1976D2'">
+                <span style="font-size: 14px;">🔄</span> REFRESH DATA
+            </button>
+        </div>
+
+        <div class="container">
+            {% if view == 'console' %}
+                {% include 'admin/_console.html' %}
+            {% elif view == 'fraud' %}
+                {% include 'admin/_fraud.html' %}
+            {% elif view == 'ocr' %}
+                {% include 'admin/_ocr.html' %}
+            {% elif view == 'messaging' %}
+                {% include 'admin/_messaging.html' %}
+            {% elif view == 'devices' %}
+                {% include 'admin/_devices.html' %}
+            {% elif view == 'backups' %}
+                {% include 'admin/_backups.html' %}
+            {% elif view == 'live_logs' %}
+                {% include 'admin/_logs_live.html' %}
+            {% elif view == 'logs' %}
+                {% include 'admin/_logs.html' %}
+            {% elif view == 'settings' %}
+                {% include 'admin/_settings.html' %}
+            {% elif view == 'metrics' %}
+                {% include 'admin/_metrics.html' %}
+            {% elif view == 'rbac' %}
+                {% include 'admin/_rbac.html' %}
+            {% elif view == 'ticket_detail' %}
+                {% include 'admin/_ticket_detail.html' %}
+            {% else %}
+                {% include 'admin/_profile.html' %}
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        localStorage.setItem('dvom_vault_v', '4.8.0-PLATINUM');
+        localStorage.setItem('staff_access_node', '{{ session["admin_role"] }}');
+        localStorage.setItem('internal_debug_key', 'DVOM_MASTER_DEBUG_9922');
+
+        // SessionStorage para datos volátiles de la sesión actual
+        sessionStorage.setItem('current_session_id', '{{ session["admin_id"] }}');
+        sessionStorage.setItem('last_active_view', '{{ view }}');
+    </script>
+</body>
+
+</html>

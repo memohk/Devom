@@ -1,0 +1,97 @@
+<div class="card">
+    <h2>KYC Document Validation Queue (OCR)</h2>
+    <p style="color: #8898aa; font-size: 0.9em;">Process user identity documents using automated recognition engines.</p>
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+    {% if pending_ocr %}
+    <table>
+        <thead>
+            <tr><th>User ID</th><th>Username</th><th>Captured Identity Document</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+            {% for item in pending_ocr %}
+            <tr>
+                <td>#{{ item.id }}</td>
+                <td><strong>{{ item.username }}</strong></td>
+                <td>
+                    <div style="width: 120px; height: 80px; overflow: hidden; border-radius: 8px; border: 1px solid #eee;">
+                        <img src="/view_upload/{{ item.kyc_selfie }}" style="width: 100%; height: auto;">
+                    </div>
+                    <div style="font-size: 10px; color: #8898aa; margin-top: 5px;">File: {{ item.kyc_selfie }}</div>
+                </td>
+                <td>
+                    <button id="btn-{{ item.id }}" onclick="runOCR('{{ item.id }}')" class="btn-action btn-approve" style="background: #1976D2;">RUN OCR SCAN</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty-msg">No documents pending for OCR validation.</p>
+    {% endif %}
+
+    <!-- 🖼️ MODAL DE RESULTADOS OCR -->
+    <div id="ocrModal" style="display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+        <div style="background: white; padding: 40px; border-radius: 15px; width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); text-align: center;">
+            <div style="font-size: 50px; margin-bottom: 20px;">✅</div>
+            <h3 style="color: #1976D2; margin-top: 0;">OCR SCAN COMPLETED</h3>
+            <p style="color: #8898aa; font-size: 0.9em; margin-bottom: 30px;">Digital identity verification results:</p>
+
+            <div style="text-align: left; background: #f8f9fe; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+                <div style="font-size: 11px; color: #8898aa; font-weight: bold; text-transform: uppercase;">Detected Identity</div>
+                <div id="ocrName" style="font-weight: bold; color: #32325d; font-size: 16px; margin-bottom: 15px;">-</div>
+
+                <div style="font-size: 11px; color: #8898aa; font-weight: bold; text-transform: uppercase;">Official DNI/ID</div>
+                <div id="ocrDNI" style="font-weight: bold; color: #32325d; font-size: 16px; margin-bottom: 15px;">-</div>
+
+                <div style="font-size: 11px; color: #8898aa; font-weight: bold; text-transform: uppercase;">Engine Confidence</div>
+                <div id="ocrScore" style="color: #2dce89; font-weight: bold;">-</div>
+            </div>
+
+            <button onclick="closeOCR()" class="btn-action btn-approve" style="width: 100%; padding: 12px 0;">CLOSE REPORT</button>
+        </div>
+    </div>
+
+    <script>
+        function runOCR(uid) {
+            const btn = document.getElementById('btn-' + uid);
+            if(!btn) return;
+
+            const originalText = btn.innerText;
+            btn.innerText = "PROCESSING...";
+            btn.disabled = true;
+
+            fetch('/admin/ocr_process/' + uid, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (response.ok && data.status === "success") {
+                    // Llenar datos en el Modal
+                    document.getElementById('ocrName').innerText = data.detected_name;
+                    document.getElementById('ocrDNI').innerText = data.detected_dni;
+                    document.getElementById('ocrScore').innerText = "Confidence Score: " + data.match_score;
+
+                    // Mostrar Modal
+                    document.getElementById('ocrModal').style.display = "flex";
+                } else {
+                    alert("❌ OCR Error: " + (data.message || "System Failure"));
+                }
+            })
+            .catch(err => {
+                console.error("UI Trace:", err);
+                alert("⚠️ Communication Error. Check terminal logs.");
+            })
+            .finally(() => {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            });
+        }
+
+        function closeOCR() {
+            document.getElementById('ocrModal').style.display = "none";
+        }
+    </script>
+
+</div>

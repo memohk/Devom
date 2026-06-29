@@ -1,0 +1,74 @@
+<!-- 👥 GESTIÓN DE ROLES (RBAC) -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h2 style="margin: 0;">Web Infrastructure Staff</h2>
+        <button onclick="toggleStaffForm()" style="background: #2dce89; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 11px; font-weight: bold;">+ ADD STAFF MEMBER</button>
+    </div>
+
+    <!-- Formulario oculto para añadir staff -->
+    <div id="staffForm" style="display: none; background: #f8f9fe; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 30px;">
+        <h3 style="margin-top: 0; font-size: 14px; color: #1976D2;">REGISTER NEW STAFF MEMBER</h3>
+        <form action="{{ url_for('admin.create_web_admin') }}" method="POST">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <input type="text" name="name" placeholder="Full Name" required style="padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                <input type="text" name="username" placeholder="Login Username" required style="padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                <input type="password" name="password" placeholder="Login Password" required style="padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                <select name="role" required style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: white;">
+                    <option value="CUSTOMER_SERVICE">Customer Service (KYC/Console)</option>
+                    <option value="SUPPORT">Technical Support (Logs/Fraud/Fleet)</option>
+                    <option value="ADMIN">System Administrator (Full Access)</option>
+                </select>
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button type="submit" style="background: #1976D2; color: white; border: none; padding: 10px 30px; border-radius: 5px; cursor: pointer; font-weight: bold;">CREATE ACCOUNT</button>
+                <button type="button" onclick="toggleStaffForm()" style="background: #e2e8f0; color: #4a5568; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">CANCEL</button>
+            </div>
+        </form>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for staff in web_admins %}
+            <tr>
+                <td>#{{ staff.id }}</td>
+                <td><strong>{{ staff.name }}</strong></td>
+                <td><code>{{ staff.username }}</code></td>
+                <td>
+                    {% if staff.role == 'ADMIN' %}
+                        <span class="badge" style="background: #e7fcf3; color: #2dce89; padding: 5px 12px; border-radius: 15px; font-size: 10px; font-weight: bold;">👑 {{ staff.role }}</span>
+                    {% elif staff.role == 'SUPPORT' %}
+                        <span class="badge" style="background: #e7f4ff; color: #1976D2; padding: 5px 12px; border-radius: 15px; font-size: 10px; font-weight: bold;">🛠️ {{ staff.role }}</span>
+                    {% else %}
+                        <span class="badge" style="background: #fff5e6; color: #fb6340; padding: 5px 12px; border-radius: 15px; font-size: 10px; font-weight: bold;">🎧 {{ staff.role }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if staff.username != 'admin' %}
+                    <form action="{{ url_for('admin.delete_web_admin', admin_id=staff.id) }}" method="POST" onsubmit="return confirm('Remove this staff member?')">
+                        <button type="submit" style="background: none; border: none; color: #f5365c; cursor: pointer; font-weight: bold; font-size: 11px;">DELETE</button>
+                    </form>
+                    {% else %}
+                    <span style="color: #adb5bd; font-size: 11px; font-style: italic;">Protected</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function toggleStaffForm() {
+        const form = document.getElementById('staffForm');
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+</script>

@@ -1,0 +1,20 @@
+<div class="card">
+    <h2>Database Maintenance & Backups</h2>
+    <p style="color: #8898aa; font-size: 0.9em;">Manage system persistence and data integrity snapshots.</p>
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+    <div style="display: flex; gap: 20px; align-items: flex-start;">
+        <div style="flex: 1; background: #f1f3f9; padding: 25px; border-radius: 12px;">
+            <h4 style="margin-top: 0; color: #32325d;">Download Master Ledger</h4>
+            <p style="font-size: 13px; color: #525f7f;">Export the current <code>usuarios.db</code> file directly for offline analysis or cold storage.</p>
+            <a href="{{ url_for('admin.download_db') }}" class="btn-action btn-approve" style="text-decoration: none; display: inline-block; padding: 12px 25px;">DOWNLOAD SQLITE DATABASE</a>
+        </div>
+
+        <div style="flex: 1; border: 2px dashed #edf2f7; padding: 25px; border-radius: 12px;">
+            <h4 style="margin-top: 0; color: #32325d;">Restore from Backup</h4>
+            <p style="font-size: 13px; color: #525f7f;">Overwrite current data with a legacy <code>.db</code> file. (Disabled in demo mode).</p>
+            <input type="file" disabled style="font-size: 12px;">
+            <button disabled class="btn-action" style="background: #adb5bd; margin-top: 10px;">RELOAD INFRASTRUCTURE</button>
+        </div>
+    </div>
+</div>

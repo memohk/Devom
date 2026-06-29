@@ -1,0 +1,31 @@
+<style>
+    /* Custom Scrollbar for Terminal */
+    .terminal-box::-webkit-scrollbar { width: 8px; }
+    .terminal-box::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 0 8px 8px 0; }
+    .terminal-box::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; border: 2px solid #1a1a1a; }
+    .terminal-box::-webkit-scrollbar-thumb:hover { background: #00ff00; }
+</style>
+
+<div class="card">
+    <h2>Live Infrastructure Monitoring</h2>
+    <p style="color: #8898aa; font-size: 0.9em;">Real-time stream of backend server events and API traffic.</p>
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+    <div class="terminal-box" style="background: #1e1e1e; color: #00ff00; padding: 20px; border-radius: 8px; font-family: 'Consolas', monospace; font-size: 13px; height: 500px; overflow-y: scroll; box-shadow: inset 0 0 10px #000;">
+        {% for log in live_logs %}
+            <div style="margin-bottom: 5px; border-left: 2px solid transparent; padding-left: 5px; transition: 0.3s;" onmouseover="this.style.borderColor='#00ff00'" onmouseout="this.style.borderColor='transparent'">{{ log }}</div>
+        {% endfor %}
+        {% if not live_logs %}
+            <div style="color: #666;">[SYSTEM] Polling for new events...</div>
+            <div>[SYSTEM] Listening on interface 0.0.0.0:8000</div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Recargar la página automáticamente cada 5 segundos para simular el "Live"
+        setTimeout(function(){
+           location.reload();
+        }, 5000);
+    </script>
+
+</div>

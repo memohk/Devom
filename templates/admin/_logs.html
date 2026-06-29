@@ -1,0 +1,25 @@
+<div class="card">
+    <h2>System Audit Trail</h2>
+    <p style="color: #8898aa; font-size: 0.9em;">Real-time logging of administrative actions and security events.</p>
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+    <table>
+        <thead>
+            <tr><th>Timestamp</th><th>Action</th><th>Admin ID</th><th>Technical Details</th></tr>
+        </thead>
+        <tbody>
+            {% for log in audit_logs %}
+            <tr>
+                <td style="font-family: monospace; font-size: 12px;">{{ log.timestamp }}</td>
+                <td><span class="badge badge-pending" style="background: #e3f2fd; color: #1976D2;">{{ log.action }}</span></td>
+                <td>#{{ log.user_id }}</td>
+                <td style="color: #525f7f; font-style: italic;">{{ log.details }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if not audit_logs %}
+    <p class="empty-msg">Audit ledger is currently empty.</p>
+    {% endif %}
+</div>

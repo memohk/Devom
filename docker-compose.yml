@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  dvom-server:
+    build: .
+    container_name: dvom-lab-v1
+    ports:
+      - "8443:8080"
+    volumes:
+      # Sincroniza las carpetas para que los cambios sean permanentes
+      - ./usersdb:/app/usersdb
+      - ./uploads:/app/uploads
+      - ./jwt_keys:/app/jwt_keys
+      - ./templates:/app/templates
+    restart: always
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: >
+      sh -c "mkdir -p /app/jwt_keys && 
+             if [ ! -f /app/jwt_keys/prod.key ]; then 
+               echo 'dvom_weak_jwt_secret_key_2024' > /app/jwt_keys/prod.key; 
+             fi; 
+             python server.py"

@@ -1,0 +1,34 @@
+<!-- 👤 VISTA DE PERFIL DINÁMICO -->
+<div class="card">
+    <h2>Internal Security Clearance</h2>
+    <div class="profile-table">
+        <div class="profile-row">
+            <div class="profile-label">Full Name</div>
+            <div class="profile-value">{{ admin['name'] }}</div>
+        </div>
+        <div class="profile-row">
+            <div class="profile-label">Internal Email</div>
+            <div class="profile-value">{% if admin['username'] == 'admin' %}admin{% elif admin['username'] == 'carla' %}c.service{% else %}p.tech{% endif %}@dvom.lab</div>
+        </div>
+        <div class="profile-row">
+            <div class="profile-label">Infrastructure ID</div>
+            <div class="profile-value"><code>DVOM-ST-{{ admin['id'] }}</code></div>
+        </div>
+        <div class="profile-row">
+            <div class="profile-label">Master Secret</div>
+            <div class="profile-value" style="color: #f5365c; font-weight: bold; letter-spacing: 1px;">{{ master_secret }}</div>
+        </div>
+        <div class="profile-row">
+            <div class="profile-label">Access Clearance</div>
+            <div class="profile-value">
+                {% if admin['role'] == 'ADMIN' %}
+                    <span style="color: #1976D2; font-weight: 800;">👑 ROOT ACCESS</span>
+                {% elif admin['role'] == 'SUPPORT' %}
+                    <span style="color: #344767; font-weight: 800;">🛠️ TECHNICAL SUPPORT</span>
+                {% else %}
+                    <span style="color: #0D47A1; font-weight: 800;">🎧 CUSTOMER SERVICE</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
